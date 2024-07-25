@@ -29,12 +29,12 @@ const Navbar = () => {
 					{" "}
 					Explore
 				</Link>
-				<Link
+				{/* <Link
 					href="/tbas"
 					className="font-bold font-base font-satoshi text-secondaryText"
 				>
 					TBAs
-				</Link>
+				</Link> */}
 			</div>
 			{!address ? (
 				<button

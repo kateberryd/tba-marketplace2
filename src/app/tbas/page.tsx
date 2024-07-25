@@ -45,7 +45,7 @@ const Bids = () => {
 					))}
 				</div>
 
-        <div className="py-10">
+        {/* <div className="py-10">
 					<div className="grid grid-cols-4 gap-5">
 						{Array(8)
 							.fill(0)
@@ -55,7 +55,7 @@ const Bids = () => {
 								</div>
 							))}
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</Layout>
 	);
