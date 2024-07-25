@@ -112,7 +112,7 @@ export default function Example() {
 											Current Owner
 										</p>
 										<p className="text-[18px] font-bold text-[#49536E] ">
-										{data?.seller?.toString().slice(0, 8).concat("...").concat(data?.seller?.toString().slice(-10))}
+										{/* {data?.seller?.toString().slice(0, 8).concat("...").concat(data?.seller?.toString().slice(-10))} */}
 										</p>
 									</div>
 								</div>
@@ -131,7 +131,7 @@ export default function Example() {
 												Price
 											</p>
 											<p className="text-[18px] font-bold text-[#49536E] ">
-												{data?.amount.toString()} STRK
+												{/* {data?.amount.toString()} STRK */}
 											</p>
 										</div>
 									</div>
@@ -160,7 +160,7 @@ export default function Example() {
 									</div>
 
 									<p className="text-primaryText  font-satoshi text-[20px] pt-4">
-									<strong>TBA</strong>: {data?.nft_contract_address?.toString().slice(0, 8).concat("...").concat(data?.nft_contract_address?.toString().slice(-10))}
+									{/* <strong>TBA</strong>: {data?.nft_contract_address?.toString().slice(0, 8).concat("...").concat(data?.nft_contract_address?.toString().slice(-10))} */}
 
 									</p>
 
@@ -299,7 +299,7 @@ export default function Example() {
 										Price
 									</p>
 									<p className="text-[14px] font-bold text-[#192648] ">
-										{data?.amount.toString()} STRK
+										{/* {data?.amount.toString()} STRK */}
 									</p>
 								</div>
 							</div>
