@@ -20,7 +20,6 @@ import {
 import Layout from "@/components/Layout";
 import NFTCard from "@/components/Card";
 import useListingHook from "@/components/hooks/useListing";
-import OrbitProgress from "react-loading-indicators/OrbitProgress";
 
 const MarketPlace = () => {
 
@@ -206,12 +205,8 @@ const MarketPlace = () => {
 							<div className="mt-6 lg:col-span-2 lg:mt-0 xl:col-span-3">
 								{isLoading ? (
 									<div className="h-[50vh] flex items-center justify-center">
-										<OrbitProgress
-										color="#4A23A4"
-										size="medium"
-										text=""
-										textColor=""
-									/>
+									
+									<p>Loading...</p>
 									</div>
 								) : (
 									<div className="grid grid-cols-3 gap-10 ">
