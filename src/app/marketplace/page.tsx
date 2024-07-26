@@ -212,11 +212,11 @@ const MarketPlace = () => {
 									<div className="grid grid-cols-3 gap-10 ">
 										{listings?.map(
 											(
-												{ nft_contract_address, seller, token_id, amount, listing_id },
+												{ tba_address, seller, token_id, amount, listing_id },
 												i
 											) => (
 												<div key={i}>
-													<NFTCard lisiting_id={listing_id} title={nft_contract_address} seller={seller} route="/details" amount={amount} />
+													<NFTCard lisiting_id={listing_id} title={tba_address} seller={seller} route="/details" amount={amount} />
 												</div>
 											)
 										)}

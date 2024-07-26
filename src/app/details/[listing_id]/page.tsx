@@ -45,14 +45,12 @@ export default function Example() {
 
 	const calls = useMemo(() => {
 		let formattedAmount: Uint256 = cairo.uint256(9);
-		let listing_id = params.listing_id;
-		console.log(formattedAmount, listing_id);
-
+		let listing_id: Uint256 = cairo.uint256(params.listing_id.toString());
 		const tx = {
 			contractAddress: CONTRACT_ADDR,
 			entrypoint: "place_bid",
 			provider: provider,
-			calldata: [7, formattedAmount],
+			calldata: [listing_id, formattedAmount],
 		};
 		return [tx];
 	}, [params.listing_id, amount]);
@@ -73,6 +71,7 @@ export default function Example() {
 		try {
 			writeAsync();
 			toast.success("Bid placed successfully");
+			setBidOpen(false)
 		} catch (error) {
 			console.error(error);
 			toast.error("Unable placed bid ");
@@ -87,8 +86,7 @@ export default function Example() {
 		watch: true,
 	});
 
-
-	console.log(data)
+	console.log(data);
 
 	return (
 		<>
@@ -112,7 +110,7 @@ export default function Example() {
 											Current Owner
 										</p>
 										<p className="text-[18px] font-bold text-[#49536E] ">
-										{/* {data?.seller?.toString().slice(0, 8).concat("...").concat(data?.seller?.toString().slice(-10))} */}
+											{/* {data?.seller?.toString().slice(0, 8).concat("...").concat(data?.seller?.toString().slice(-10))} */}
 										</p>
 									</div>
 								</div>
@@ -136,9 +134,7 @@ export default function Example() {
 										</div>
 									</div>
 
-									<p className="text-[18px] font-bold text-[#49536E] ">
-										$0
-									</p>
+									<p className="text-[18px] font-bold text-[#49536E] ">$0</p>
 								</div>
 
 								<button
@@ -160,8 +156,7 @@ export default function Example() {
 									</div>
 
 									<p className="text-primaryText  font-satoshi text-[20px] pt-4">
-									{/* <strong>TBA</strong>: {data?.nft_contract_address?.toString().slice(0, 8).concat("...").concat(data?.nft_contract_address?.toString().slice(-10))} */}
-
+										{/* <strong>TBA</strong>: {data?.nft_contract_address?.toString().slice(0, 8).concat("...").concat(data?.nft_contract_address?.toString().slice(-10))} */}
 									</p>
 
 									<div className="flex items-center cursor-pointer mt-5">
@@ -226,20 +221,19 @@ export default function Example() {
 													<col />
 												</colgroup>
 
-											
-													{bidsIsLoading ? (
-														<div className="h-[50vh] flex items-center justify-center">
-															<OrbitProgress
-																color="#4A23A4"
-																size="medium"
-																text=""
-																textColor=""
-															/>
-														</div>
-													) : (
-														listingBids != undefined &&
-														listingBids.map(({bid_id, bidder, amount}, i) => (
-															<tbody>
+												{bidsIsLoading ? (
+													<div className="h-[50vh] flex items-center justify-center">
+														<OrbitProgress
+															color="#4A23A4"
+															size="medium"
+															text=""
+															textColor=""
+														/>
+													</div>
+												) : (
+													listingBids != undefined &&
+													listingBids.map(({ bid_id, bidder, amount }, i) => (
+														<tbody>
 															<tr key={i} className="border-b border-gray-100 ">
 																<td className=" py-5 pl-8 pr-0 gap-3 px- flex items-center text-right align-top tabular-nums text-gray-700 ">
 																	<div className="w-8 h-8">
@@ -249,16 +243,21 @@ export default function Example() {
 																			alt=""
 																		/>
 																	</div>
-																	<p>	{bidder?.slice(0, 8).concat("...").concat(bidder?.slice(-10))}</p>
+																	<p>
+																		{" "}
+																		{bidder
+																			?.slice(0, 8)
+																			.concat("...")
+																			.concat(bidder?.slice(-10))}
+																	</p>
 																</td>
 																<td className=" py-5 font-bold  pr-5 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-																	{amount} STRK
+																	{amount / 10**18} STRK
 																</td>
 															</tr>
-															</tbody>
-														))
-													)}
-												
+														</tbody>
+													))
+												)}
 											</table>
 										</div>
 									)

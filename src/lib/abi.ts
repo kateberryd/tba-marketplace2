@@ -1,5 +1,28 @@
 export const ABI = [
   {
+    "name": "UpgradeableImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::upgrades::interface::IUpgradeable"
+  },
+  {
+    "name": "openzeppelin::upgrades::interface::IUpgradeable",
+    "type": "interface",
+    "items": [
+      {
+        "name": "upgrade",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "new_class_hash",
+            "type": "core::starknet::class_hash::ClassHash"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
     "name": "TBAMarketplaceimpl",
     "type": "impl",
     "interface_name": "tbamarketplace::interfaces::ITBAMarketplace::ITBAMarketplace"
@@ -63,12 +86,8 @@ export const ABI = [
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "nft_contract_address",
+        "name": "tba_address",
         "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "token_id",
-        "type": "core::integer::u256"
       },
       {
         "name": "amount",
@@ -193,11 +212,7 @@ export const ABI = [
             "type": "core::integer::u256"
           }
         ],
-        "outputs": [
-          {
-            "type": "core::integer::u256"
-          }
-        ],
+        "outputs": [],
         "state_mutability": "external"
       },
       {
@@ -253,7 +268,7 @@ export const ABI = [
             "type": "core::integer::u256"
           },
           {
-            "name": "bid_index",
+            "name": "bid_id",
             "type": "core::integer::u256"
           }
         ],
@@ -265,11 +280,16 @@ export const ABI = [
   {
     "name": "constructor",
     "type": "constructor",
-    "inputs": []
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
   },
   {
     "kind": "struct",
-    "name": "tbamarketplace::base::types::TBAListed",
+    "name": "tbamarketplace::base::types::TBAEvent",
     "type": "event",
     "members": [
       {
@@ -279,24 +299,14 @@ export const ABI = [
       },
       {
         "kind": "data",
-        "name": "seller",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "kind": "data",
-        "name": "nft_contract_address",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "kind": "data",
-        "name": "amount",
-        "type": "core::integer::u256"
+        "name": "listing",
+        "type": "tbamarketplace::base::types::Listing"
       }
     ]
   },
   {
     "kind": "struct",
-    "name": "tbamarketplace::base::types::BidPlaced",
+    "name": "tbamarketplace::base::types::BidEvent",
     "type": "event",
     "members": [
       {
@@ -306,18 +316,110 @@ export const ABI = [
       },
       {
         "kind": "data",
-        "name": "nft_address",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
+        "name": "bid",
+        "type": "tbamarketplace::base::types::Bid"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tbamarketplace::base::types::BidAccepted",
+    "type": "event",
+    "members": [
       {
         "kind": "data",
-        "name": "bidder",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "kind": "data",
-        "name": "amount",
+        "name": "listing_id",
         "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "listing",
+        "type": "tbamarketplace::base::types::Listing"
+      },
+      {
+        "kind": "data",
+        "name": "bid_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "bid",
+        "type": "tbamarketplace::base::types::Bid"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "OwnershipTransferred",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferred"
+      },
+      {
+        "kind": "nested",
+        "name": "OwnershipTransferStarted",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferStarted"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Upgraded",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "Upgraded",
+        "type": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Upgraded"
       }
     ]
   },
@@ -328,13 +430,28 @@ export const ABI = [
     "variants": [
       {
         "kind": "nested",
-        "name": "TBAListed",
-        "type": "tbamarketplace::base::types::TBAListed"
+        "name": "TBAEvent",
+        "type": "tbamarketplace::base::types::TBAEvent"
       },
       {
         "kind": "nested",
-        "name": "BidPlaced",
-        "type": "tbamarketplace::base::types::BidPlaced"
+        "name": "BidEvent",
+        "type": "tbamarketplace::base::types::BidEvent"
+      },
+      {
+        "kind": "nested",
+        "name": "BidAccepted",
+        "type": "tbamarketplace::base::types::BidAccepted"
+      },
+      {
+        "kind": "flat",
+        "name": "OwnableEvent",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::Event"
+      },
+      {
+        "kind": "flat",
+        "name": "UpgradeableEvent",
+        "type": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Event"
       }
     ]
   }

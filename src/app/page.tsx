@@ -103,9 +103,9 @@ export default function Home() {
 				<div className="py-10">
 					<div className="grid grid-cols-4 gap-5">
 						{listings?.slice(0, 8).map(
-							({ nft_contract_address, seller, token_id, amount, listing_id }, i) => (
+							({ tba_address, seller, token_id, amount, listing_id }, i) => (
 								<div key={i}>
-									<NFTCard seller={seller} title={nft_contract_address} lisiting_id={listing_id} route="/details" amount={amount}  />
+									<NFTCard seller={seller} title={tba_address} lisiting_id={listing_id} route="/details" amount={amount}  />
 								</div>
 							)
 						)}
