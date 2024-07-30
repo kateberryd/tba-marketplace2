@@ -10,7 +10,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className='px-20 py-10'>
+    <div className='px-5 md:px-20 md:py-10 py-5'>
        <Toaster />
       <Navbar />
       {children}

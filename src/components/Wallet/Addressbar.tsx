@@ -25,9 +25,9 @@ const AddressBar = ({
 
 	return (
 		<div className="flex items-center gap-5">
-			<div className="rounded-full w-12 h-12 ">
+			{/* <div className="rounded-full w-12 h-12 ">
 				<img src="/img-1.png" className="w-full h-full rounded-full" alt="" />
-			</div>
+			</div> */}
 			<button
 			onClick={toggleModal}
 			className="bg-primary py-2 px-4 text-white rounded-full transition duration-300"

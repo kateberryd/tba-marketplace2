@@ -8,14 +8,7 @@ export const filters = [
      
     ],
   },
-  {
-    id: 'category',
-    name: 'Category',
-    options: [
-     
-    
-    ],
-  },
+
   {
     id: 'price',
     name: 'Price',

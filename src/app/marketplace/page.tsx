@@ -123,7 +123,7 @@ const MarketPlace = () => {
 
 							<Menu as="div" className="relative inline-block text-left">
 								<div>
-									<MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-[#F9F8FF] text-sm  px-3 py-3 text-sm font-medium text-primaryText shadow-sm ring-1 ring-inset ring-[#F9F8FF] hover:bg-gray-50">
+									<MenuButton className=" w-full justify-center gap-x-1.5 rounded-md bg-[#F9F8FF] text-sm  px-3 py-3 hidden lg:block font-medium text-primaryText shadow-sm ring-1 ring-inset ring-[#F9F8FF] hover:bg-gray-50">
 										Sort BY
 										<ChevronDownIcon
 											aria-hidden="true"
@@ -209,7 +209,7 @@ const MarketPlace = () => {
 									<p>Loading...</p>
 									</div>
 								) : (
-									<div className="grid grid-cols-3 gap-10 ">
+									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 ">
 										{listings?.map(
 											(
 												{ tba_address, seller, token_id, amount, listing_id },

@@ -13,17 +13,36 @@ import {
 	useContractWrite,
 } from "@starknet-react/core";
 import toast from "react-hot-toast";
-import { cairo, RpcProvider, Uint256 } from "starknet";
+import { cairo, Contract, RpcProvider, Uint256 } from "starknet";
 import { ABI } from "@/lib/abi";
 import useBidsHooks from "@/components/hooks/useBidsHooks";
 import OrbitProgress from "react-loading-indicators/OrbitProgress";
+import { myProviderUrl } from "@/lib/constant";
+
+interface TBAProps {
+	seller: string;
+	amount: number;
+	listing_id: number;
+	is_active: boolean;
+	tba_address: string;
+}
 
 export default function Example() {
 	const [active, setActiveTab] = useState<number>(1);
 	const [bidOpen, setBidOpen] = useState<boolean>(false);
+	const [acceptBid, setAcceptBid] = useState<boolean>(false);
 	const { isConnected, address } = useAccount();
 	const [amount, setAmount] = useState<number>(0);
+	const [listing, setListing] = useState<TBAProps | null>(null);
+
 	const params = useParams();
+	const [tbaContract] = useState<Contract>(
+		new Contract(
+			ABI,
+			CONTRACT_ADDR,
+			new RpcProvider({ nodeUrl: myProviderUrl })
+		)
+	);
 
 	const { listingBids, bidsIsLoading } = useBidsHooks();
 
@@ -39,17 +58,12 @@ export default function Example() {
 		},
 	];
 
-	const provider = new RpcProvider({
-		nodeUrl: "https://starknet-sepolia.public.blastapi.io",
-	});
-
 	const calls = useMemo(() => {
 		let formattedAmount: Uint256 = cairo.uint256(9);
 		let listing_id: Uint256 = cairo.uint256(params.listing_id.toString());
 		const tx = {
 			contractAddress: CONTRACT_ADDR,
 			entrypoint: "place_bid",
-			provider: provider,
 			calldata: [listing_id, formattedAmount],
 		};
 		return [tx];
@@ -71,22 +85,28 @@ export default function Example() {
 		try {
 			writeAsync();
 			toast.success("Bid placed successfully");
-			setBidOpen(false)
+			setBidOpen(false);
 		} catch (error) {
 			console.error(error);
 			toast.error("Unable placed bid ");
 		}
 	};
 
-	const { data, isLoading } = useContractRead({
-		functionName: "get_listing",
-		args: [params.listing_id],
-		abi: ABI,
-		address: CONTRACT_ADDR,
-		watch: true,
-	});
+	useEffect(() => {
+		const fetchData = async () => {
+			const listing_id = params.listing_id;
+			if (listing_id) {
+				const listing = (await tbaContract.call("get_listing", [
+					listing_id,
+				])) as TBAProps;
 
-	console.log(data);
+				setListing(listing);
+			}
+		};
+		fetchData().catch(console.error);
+	}, [params.listing_id]);
+
+	console.log(listing?.amount);
 
 	return (
 		<>
@@ -109,8 +129,12 @@ export default function Example() {
 										<p className="font-satoshi text-base font-normal text-primaryText">
 											Current Owner
 										</p>
-										<p className="text-[18px] font-bold text-[#49536E] ">
-											{/* {data?.seller?.toString().slice(0, 8).concat("...").concat(data?.seller?.toString().slice(-10))} */}
+										<p className="text-[14px] font-normal text-[#49536E] ">
+											{listing?.seller
+												?.toString()
+												.slice(0, 8)
+												.concat("...")
+												.concat(listing?.seller?.toString().slice(-10))}
 										</p>
 									</div>
 								</div>
@@ -128,13 +152,15 @@ export default function Example() {
 											<p className="font-satoshi text-sm font-normal text-primaryText">
 												Price
 											</p>
-											<p className="text-[18px] font-bold text-[#49536E] ">
-												{/* {data?.amount.toString()} STRK */}
-											</p>
+											{listing != null && (
+												<p className="text-[18px] font-bold text-[#49536E] ">
+													{parseInt(listing.amount.toString()) / 10 ** 18} STRK
+												</p>
+											)}
 										</div>
 									</div>
 
-									<p className="text-[18px] font-bold text-[#49536E] ">$0</p>
+									{/* <p className="text-[18px] font-bold text-[#49536E] ">$0</p> */}
 								</div>
 
 								<button
@@ -188,14 +214,14 @@ export default function Example() {
 											Description
 										</p>
 										<p className="text-primaryText font-medium text-[16px ] font-satoshi ">
-											Bid for and Sell your NFTs as Token Band Accounts.
+											{/* Bid for and Sell your NFTs as Token Band Accounts. */}
 										</p>
-										<div className="div">
+										{/* <div className="div">
 											<p className="text-primaryText font-bold text-[20px ] font-satoshi ">
 												Details{" "}
 											</p>
-										</div>
-										<div className="mt-16 w-full space-y-5">
+										</div> */}
+										{/* <div className="mt-16 w-full space-y-5">
 											<div className="border  py-5 border-gray-100 rounded-xl">
 												<p className="px-5 font-medium text-primaryText ">
 													Ethereum (ERC-721)
@@ -207,7 +233,7 @@ export default function Example() {
 													Refresh Metadata
 												</div>
 											</div>
-										</div>
+										</div> */}
 									</div>
 								) : (
 									active == 2 && (
@@ -251,9 +277,19 @@ export default function Example() {
 																			.concat(bidder?.slice(-10))}
 																	</p>
 																</td>
-																<td className=" py-5 font-bold  pr-5 text-right align-top tabular-nums text-gray-700 sm:table-cell">
-																	{amount / 10**18} STRK
+																<td className="py-5 font-bold  pr-5 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+																	{amount / 10 ** 18} STRK
 																</td>
+																<tr className="py-5 font-bold  pr-5 text-right align-top tabular-nums text-gray-700 sm:table-cell">
+																	<button
+																		onClick={() => setAcceptBid(true)}
+																		className="px-3 bg-[#F7F7F7] border rounded-lg py-2"
+																	>
+																		<p className="font-satoshi text-xs text-[#49536E]">
+																			Accept Bid
+																		</p>
+																	</button>
+																</tr>
 															</tr>
 														</tbody>
 													))
@@ -283,22 +319,15 @@ export default function Example() {
 											alt=""
 										/>
 									</div>
-									{/* <div className="space-y-2">
-										<p className="font-satoshi text-sm font-light text-[#A4A9B6]">
-											Current Owner
-										</p>
-										<p className="text-[16px] font-satoshi font-bold text-[#49536E] ">
-										{data?.sender?.slice(0, 6).concat("...").concat(address?.slice(-5))}
-										</p>
-									</div> */}
 								</div>
 
 								<div className="space-y-2">
-									<p className="font-satoshi text-sm font-light text-[#A4A9B6]">
-										Price
-									</p>
 									<p className="text-[14px] font-bold text-[#192648] ">
-										{/* {data?.amount.toString()} STRK */}
+										{listing != null && (
+											<p className="text-[18px] font-bold text-[#49536E] ">
+												{parseInt(listing.amount.toString()) / 10 ** 18} STRK
+											</p>
+										)}
 									</p>
 								</div>
 							</div>
@@ -313,6 +342,57 @@ export default function Example() {
 								className="w-full border flex items-center justify-center gap-3 border-primary bg-primary rounded-lg py-3 text-[18px] font-bold text-white mt-5"
 							>
 								<PlaceBidWhiteIcon color="#fff" /> Place Bid
+							</button>
+						</div>
+					</CustomModal>
+
+					<CustomModal
+						isOpen={acceptBid}
+						onClose={() => setAcceptBid(!bidOpen)}
+						title="You are about to accept a bid!"
+					>
+						<div className="pt-6">
+							<div className="flex items-center gap-4 ">
+								<div className="w-8 h-8 ">
+									<img
+										className="w-full h-full rounded-2xl"
+										src="/hero-img.png"
+										alt=""
+									/>
+								</div>
+								<p className="font-satoshi text-base text-primaryText">
+									0x2c934.............fa3f2c2.....a180
+								</p>
+							</div>
+
+							<div className="flex w-full items-center rounded-lg justify-between bg-[#FAFAFB] gap-5 border-b  py-3 px-2 my-5">
+								<div className=" flex items-center gap-2">
+									<div className="w-8 h-8 ">
+										<img
+											className="w-full h-full rounded-2xl"
+											src="/img-1.png"
+											alt=""
+										/>
+									</div>
+									<div>
+										<p className="font-satoshi text-sm font-normal text-primaryText">
+											Price
+										</p>
+										{listing != null && (
+											<p className="text-[18px] font-bold text-[#49536E] ">
+												{parseInt(listing.amount.toString()) / 10 ** 18} STRK
+											</p>
+										)}{" "}
+									</div>
+								</div>
+
+								<p className="text-[16px] font-bold text-[#192648] ">
+									$50,152.56
+								</p>
+							</div>
+
+							<button className="w-full border flex items-center justify-center gap-3 border-primary bg-primary rounded-lg py-3 text-[18px] font-bold text-white mt-5">
+								<PlaceBidWhiteIcon color="#fff" /> Accept Bid
 							</button>
 						</div>
 					</CustomModal>

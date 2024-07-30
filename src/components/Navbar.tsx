@@ -19,14 +19,14 @@ const Navbar = () => {
 				<Link href="/">
 					<Logo />
 				</Link>
-				<div className="w-[400px]">
+				<div className=" hidden lg:block lg:w-[400px]">
 					<Input className="w-full " placeholder="Search TBA" />
 				</div>
 				<Link
 					href="/marketplace"
 					className="font-bold font-base font-satoshi text-secondaryText"
 				>
-					{" "}
+				
 					Explore
 				</Link>
 				{/* <Link
