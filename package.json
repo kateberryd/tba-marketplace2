@@ -21,6 +21,7 @@
     "react-hot-toast": "^2.4.1",
     "react-loading-indicators": "^1.0.0",
     "starknet": "^5.29.0",
+    "starknet-tokenbound-sdk": "^0.2.0",
     "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {
