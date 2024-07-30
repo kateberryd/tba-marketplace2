@@ -6,10 +6,7 @@ import { Input } from "@/components/Input";
 import Layout from "@/components/Layout";
 import CustomModal from "@/components/Modal";
 import { CONTRACT_ADDR } from "@/lib/utils";
-import {
-	useAccount,
-	useContractWrite,
-} from "@starknet-react/core";
+import { useAccount, useContractWrite } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -19,29 +16,33 @@ export default function Home() {
 	const [openListing, setOpenListing] = useState<boolean>(false);
 	const [tba, setTba] = useState<string>("");
 	const [amount, setAmount] = useState<number>(0);
-
 	const { listings, getNFTOwner } = useListingHook();
-
-
+	const [owner, setOwner] = useState<{
+		nftOwner: string;
+		ownerId: string;
+	}>({ nftOwner: "", ownerId: "" });
 
 	const provider = new RpcProvider({
 		nodeUrl: "https://starknet-sepolia.public.blastapi.io",
 	});
 
-
-
 	const { isConnected, address } = useAccount();
 	const navigate = useRouter();
 
-	const calls = useMemo(() => {
-		let formattedAmount: Uint256 = cairo.uint256(amount);
-
+	const approveTbaCall = useMemo(() => {
+		let nftOwnerId: Uint256 = cairo.uint256(owner.ownerId);
 		const tx = {
-			contractAddress: CONTRACT_ADDR,
-			entrypoint: "list_tba",
+			contractAddress: owner.nftOwner,
+			entrypoint: "approve",
 			provider: provider,
-			calldata: [tba, formattedAmount],
+			calldata: [owner.nftOwner, nftOwnerId],
 		};
+
+		return [tx];
+	}, [owner]);
+
+	const listTbaCall = useMemo(() => {
+		let formattedAmount: Uint256 = cairo.uint256(amount);
 
 		const tx2 = {
 			contractAddress: CONTRACT_ADDR,
@@ -49,15 +50,13 @@ export default function Home() {
 			provider: provider,
 			calldata: [tba, formattedAmount],
 		};
-		return [tx, tx2];
+		return [tx2];
 	}, [tba, amount]);
 
-	const { writeAsync } = useContractWrite({ calls });
+	const { writeAsync: approveTba, isSuccess: approveTbaSuccess  } = useContractWrite({ calls: approveTbaCall });
+	const { writeAsync: listTba } = useContractWrite({ calls: listTbaCall });
 
-
-
-
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		if (!isConnected && !address) {
 			toast.error("Please connect your wallet");
 			return;
@@ -69,16 +68,34 @@ export default function Home() {
 		}
 
 		try {
-			const tbaOwner = getNFTOwner(tba)
-			console.log(tbaOwner)
-			// writeAsync();
-			toast.success("TBA Listed successfully");
-			setOpenListing(false);
+			const nftResult = await getNFTOwner(tba);
+			setOwner({
+				nftOwner: nftResult[0].toString(),
+				ownerId: nftResult[1].toString(),
+			});
+		
 		} catch (error) {
 			console.error(error);
-			toast.error("Unable to list TBA ");
+			toast.error("Unable to get NFT contract address ");
 		}
 	};
+
+
+	useEffect(() => {
+		if (approveTbaCall.length > 0) {
+			approveTba();
+		}
+	}, [owner]);
+
+	
+
+	useEffect(() => {
+		if (listTbaCall.length > 0 && approveTbaSuccess) {
+			listTba();
+			toast.success("TBA Listed successfully");
+			setOpenListing(false);
+		}
+	}, [approveTbaSuccess]);
 
 	return (
 		<Layout>
@@ -117,13 +134,21 @@ export default function Home() {
 				</h1>
 				<div className="py-10">
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-						{listings?.slice(0, 8).map(
-							({ tba_address, seller, token_id, amount, listing_id }, i) => (
-								<div key={i}>
-									<NFTCard seller={seller} title={tba_address} lisiting_id={listing_id} route="/details" amount={amount}  />
-								</div>
-							)
-						)}
+						{listings
+							?.slice(0, 8)
+							.map(
+								({ tba_address, seller, token_id, amount, listing_id }, i) => (
+									<div key={i}>
+										<NFTCard
+											seller={seller}
+											title={tba_address}
+											lisiting_id={listing_id}
+											route="/details"
+											amount={amount}
+										/>
+									</div>
+								)
+							)}
 					</div>
 				</div>
 				<button

@@ -21,6 +21,7 @@ const useListingHook = () => {
 	const [listings, setListings] = useState<ListingProp[] | undefined>(
 		undefined
 	);
+
 	const { account } = useAccount();
 
 	const { data, isLoading, error } = useContractRead({
@@ -44,7 +45,8 @@ const useListingHook = () => {
 	}
 
 	const getNFTOwner = async (tbaAccount: string) => {
-		return await tokenbound.getOwnerNFT(tbaAccount);
+		const owner = await tokenbound.getOwnerNFT(tbaAccount);
+		return owner;
 	};
 
 	useEffect(() => {
